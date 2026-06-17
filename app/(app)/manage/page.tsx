@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { PageTitle } from "@/components/ui";
+
+export const dynamic = "force-dynamic";
+
+interface Tile {
+  href: string;
+  title: string;
+  desc: string;
+}
+
+export default async function ManagePage() {
+  const me = await getCurrentUser();
+  if (!me) redirect("/login");
+  if (me.role === "employee") redirect("/me");
+
+  const hrTiles: Tile[] = [
+    { href: "/manage/divisions", title: "ฝ่าย", desc: "เพิ่ม/จัดการฝ่ายในองค์กร" },
+    { href: "/manage/departments", title: "แผนก", desc: "เพิ่มแผนกในแต่ละฝ่าย" },
+    { href: "/manage/employees", title: "พนักงาน", desc: "เพิ่มพนักงาน กำหนดหัวหน้าผู้ประเมิน" },
+    { href: "/manage/cycles", title: "รอบประเมิน", desc: "สร้างรอบประเมิน KPI ต่อปี" },
+    { href: "/manage/org-kpi", title: "KPI องค์กร", desc: "กำหนด KPI หลักขององค์กร" },
+  ];
+  const evalTile: Tile = {
+    href: "/evaluate",
+    title: "ประเมินลูกน้อง",
+    desc: "ตรวจและให้คะแนนลูกน้องตามรอบ",
+  };
+  const unitTiles: Tile[] = [
+    {
+      href: "/manage/unit-kpi",
+      title: me.role === "division_head" ? "KPI ฝ่าย" : "KPI แผนก",
+      desc: "เพิ่ม KPI ของหน่วยงาน เชื่อมกับ KPI ระดับบน",
+    },
+    evalTile,
+  ];
+
+  const orgKpiTile = hrTiles.find((t) => t.href === "/manage/org-kpi")!;
+
+  let tiles: Tile[] = [];
+  if (me.role === "hr") tiles = hrTiles;
+  // CEO จัดการได้เฉพาะ KPI องค์กรเท่านั้น
+  else if (me.role === "ceo") tiles = [orgKpiTile];
+  else if (me.role === "division_head" || me.role === "dept_manager") tiles = unitTiles;
+
+  return (
+    <div>
+      <PageTitle>การจัดการ</PageTitle>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {tiles.map((t) => (
+          <Link
+            key={t.href}
+            href={t.href}
+            className="rounded-xl border border-[var(--border)] bg-white p-5 transition-colors hover:border-neutral-900"
+          >
+            <p className="font-semibold">{t.title}</p>
+            <p className="mt-1 text-sm text-neutral-500">{t.desc}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}

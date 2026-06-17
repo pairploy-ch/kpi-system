@@ -1,0 +1,80 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import CycleSelect from "@/components/CycleSelect";
+import { PageTitle, Th, Td, Tr, Score, StatusTag, Empty, LinkButton } from "@/components/ui";
+import PaginatedTable from "@/components/PaginatedTable";
+import {
+  activeCycle,
+  cyclesOf,
+  getCycle,
+  subordinatesOf,
+  assessmentOf,
+} from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
+
+export default async function EvaluatePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cycle?: string }>;
+}) {
+  const me = await getCurrentUser();
+  if (!me) redirect("/login");
+  if (!me.companyId) redirect("/login");
+
+  const sp = await searchParams;
+  const cycleList = cyclesOf(me.companyId);
+  const cycle = (sp.cycle && getCycle(sp.cycle)) || activeCycle(me.companyId);
+  if (!cycle) return <Empty>ยังไม่มีรอบประเมิน</Empty>;
+
+  const subs = subordinatesOf(me.id);
+
+  return (
+    <div>
+      <PageTitle
+        right={
+          <CycleSelect cycles={cycleList.map((c) => ({ id: c.id, name: c.name }))} value={cycle.id} />
+        }
+      >
+        ประเมินลูกน้อง
+      </PageTitle>
+
+      {subs.length === 0 ? (
+        <Empty>ไม่มีลูกน้องที่ต้องประเมิน</Empty>
+      ) : (
+        <PaginatedTable
+          head={
+            <>
+              <Th>ชื่อ</Th>
+              <Th>ตำแหน่ง</Th>
+              <Th>สถานะการส่ง</Th>
+              <Th className="text-right">Final Score</Th>
+              <Th></Th>
+            </>
+          }
+          rows={subs.map((u) => {
+            const a = assessmentOf(u.id, cycle.id);
+            const canEval = a && (a.status === "submitted" || a.status === "evaluated");
+            return (
+              <Tr key={u.id}>
+                <Td className="font-semibold">{u.name}</Td>
+                <Td>{u.position}</Td>
+                <Td>{a ? <StatusTag status={a.status} /> : <span className="text-neutral-400">ยังไม่ส่ง</span>}</Td>
+                <Td className="text-right"><Score value={a?.finalScore ?? null} /></Td>
+                <Td className="text-right">
+                  {canEval ? (
+                    <LinkButton href={`/evaluate/${a!.id}`} variant="outline">
+                      {a!.status === "evaluated" ? "แก้ไขผล" : "ประเมิน"}
+                    </LinkButton>
+                  ) : (
+                    <span className="text-xs text-neutral-400">รอส่ง</span>
+                  )}
+                </Td>
+              </Tr>
+            );
+          })}
+        />
+      )}
+    </div>
+  );
+}
