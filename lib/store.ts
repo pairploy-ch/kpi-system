@@ -4,13 +4,23 @@ import type { DB } from "./types";
 import { seedDB } from "./seed";
 
 // เก็บข้อมูลทั้งหมดเป็นไฟล์ JSON ฝั่ง server (prototype)
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "store.json");
+// ไฟล์ที่ deploy ไปด้วย (read-only บน serverless) ใช้เป็นค่าเริ่มต้น
+const SEED_FILE = path.join(process.cwd(), "data", "store.json");
+
+// บน Vercel/serverless filesystem เป็น read-only ยกเว้น /tmp
+// เลยเขียนข้อมูลลง /tmp แทน (ephemeral — เหมาะกับ demo เท่านั้น)
+const WRITABLE_DIR = process.env.VERCEL ? "/tmp" : path.join(process.cwd(), "data");
+const DATA_FILE = path.join(WRITABLE_DIR, "store.json");
 
 function ensureFile(): void {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(WRITABLE_DIR)) fs.mkdirSync(WRITABLE_DIR, { recursive: true });
   if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(seedDB(), null, 2), "utf8");
+    // seed จากไฟล์ที่ deploy มา ถ้ามี ไม่งั้นสร้างใหม่จาก seedDB()
+    const initial =
+      DATA_FILE !== SEED_FILE && fs.existsSync(SEED_FILE)
+        ? fs.readFileSync(SEED_FILE, "utf8")
+        : JSON.stringify(seedDB(), null, 2);
+    fs.writeFileSync(DATA_FILE, initial, "utf8");
   }
 }
 

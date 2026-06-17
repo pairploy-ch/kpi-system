@@ -40,5 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local JSON data store (prototype)
-/data/store.json
+# local JSON data store (prototype) — committed so demo seeds on Vercel
+# /data/store.json
