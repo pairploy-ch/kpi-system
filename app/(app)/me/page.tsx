@@ -57,7 +57,7 @@ export default async function MyDashboard({
       </PageTitle>
 
       <div className="mb-6 grid grid-cols-2 gap-4">
-        <Stat label="คะแนน" value={<Score value={a?.finalScore ?? null} />} />
+        <Stat label="AVG คะแนนของรอบประเมินนี้" value={<Score value={a?.finalScore ?? null} />} />
         <Stat label="ผู้บังคับบัญชาผู้ประเมิน" value={<span className="text-base">{userName(me.managerId)}</span>} />
       </div>
 
