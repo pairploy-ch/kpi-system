@@ -63,11 +63,66 @@ function evaluated(
   };
 }
 
+// helper สร้างรายการประเมินที่ "ยังไม่ส่ง" (ร่าง) — มี KPI แล้วแต่ยังไม่ส่งให้ผู้บังคับบัญชา
+function draftNotSubmitted(
+  id: string,
+  companyId: string,
+  cycleId: string,
+  userId: string,
+  evaluatorId: string,
+  linkedKpiId: string | null,
+  selfScore: number
+): Assessment {
+  const items: AssessmentItem[] = [
+    {
+      id: id + "-i1",
+      title: "เป้าหมายหลักตามบทบาท",
+      weight: 60,
+      target: "จำนวนงานที่ทำได้ตามแผน",
+      linkedKpiId,
+      selfScore,
+      selfComment: "อยู่ระหว่างกรอกผลงาน ยังไม่ได้ส่งให้ผู้บังคับบัญชา",
+      evalScore: null,
+      evalComment: "",
+    },
+    {
+      id: id + "-i2",
+      title: "การพัฒนาและความร่วมมือในทีม",
+      weight: 40,
+      target: "จำนวนกิจกรรมพัฒนาทักษะ",
+      linkedKpiId,
+      selfScore: Math.max(0, selfScore - 5),
+      selfComment: "",
+      evalScore: null,
+      evalComment: "",
+    },
+  ];
+  const selfTotal =
+    Math.round(((items[0].selfScore * 60 + items[1].selfScore * 40) / 100) * 10) / 10;
+  return {
+    id,
+    companyId,
+    cycleId,
+    userId,
+    evaluatorId,
+    items,
+    remark: "ฉบับร่าง — ยังไม่ได้ส่ง KPI ให้ผู้บังคับบัญชา",
+    status: "draft",
+    selfTotal,
+    finalScore: null,
+    submittedAt: null,
+    evaluatedAt: null,
+    createdAt: T,
+    updatedAt: T,
+  };
+}
+
 /* ---------------- สเปกข้อมูลตัวอย่าง (อ่านง่าย แก้ง่าย) ---------------- */
 interface EmpSpec {
   name: string;
   position: string;
   score: number;
+  draft?: boolean; // true = ยังไม่ส่ง KPI (สถานะร่าง) สำหรับเดโม
 }
 interface DeptSpec {
   name: string;
@@ -114,7 +169,7 @@ const COMPANIES: CompanySpec[] = [
             manager: { name: "วีรพงษ์ ชัยมงคล", position: "ผู้จัดการแผนกผลิต", score: 87 },
             kpis: ["ผลิตสินค้าได้ตามแผน 100%", "ลดเวลาหยุดเครื่องจักร 20%"],
             employees: [
-              { name: "นพดล แสงทอง", position: "ช่างเทคนิคการผลิต", score: 85 },
+              { name: "นพดล แสงทอง", position: "ช่างเทคนิคการผลิต", score: 85, draft: true },
               { name: "กิตติศักดิ์ บุญมา", position: "พนักงานควบคุมเครื่องจักร", score: 78 },
             ],
           },
@@ -483,8 +538,11 @@ export function seedDB(): DB {
             createdAt: T,
           });
           // ผลประเมินของพนักงาน (ประเมินโดยผู้จัดการแผนก)
+          // emp.draft = ตัวอย่างพนักงานที่ยังไม่ส่ง KPI (สถานะร่าง)
           assessments.push(
-            evaluated(`as-${eid}`, cid, cycleId, eid, mgrId, depKpiIds[0] ?? null, emp.score)
+            emp.draft
+              ? draftNotSubmitted(`as-${eid}`, cid, cycleId, eid, mgrId, depKpiIds[0] ?? null, emp.score)
+              : evaluated(`as-${eid}`, cid, cycleId, eid, mgrId, depKpiIds[0] ?? null, emp.score)
           );
         });
       });

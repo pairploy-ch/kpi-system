@@ -8,6 +8,7 @@ interface ItemView {
   title: string;
   weight: number;
   target: string;
+  linkedLabel: string;
   linkedTitle: string;
   selfScore: number;
   selfComment: string;
@@ -56,7 +57,7 @@ export default function EvaluationForm({
                   <span className="text-neutral-400">#{idx + 1}</span> {it.title || "—"}
                 </p>
                 <p className="mt-0.5 text-xs text-neutral-500">
-                  เชื่อม: {it.linkedTitle} · น้ำหนัก {it.weight}% · เป้าหมาย {it.target || "—"}
+                  {it.linkedLabel}: {it.linkedTitle} · น้ำหนัก {it.weight}% · ตัวชี้วัด {it.target || "—"}
                 </p>
               </div>
               <span className="shrink-0 text-xs text-neutral-500">
@@ -72,7 +73,7 @@ export default function EvaluationForm({
 
             <div className="grid gap-3 sm:grid-cols-[160px_1fr]">
               <label className="block">
-                <span className="mb-1 block text-xs font-medium text-neutral-600">คะแนนหัวหน้า (0–100)</span>
+                <span className="mb-1 block text-xs font-medium text-neutral-600">คะแนนผู้บังคับบัญชา (0–100)</span>
                 <input
                   type="number"
                   min={0}

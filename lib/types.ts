@@ -95,6 +95,7 @@ export interface Assessment {
   userId: string; // ผู้ถูกประเมิน (เจ้าของ)
   evaluatorId: string | null; // หัวหน้าผู้ประเมิน (snapshot จาก managerId)
   items: AssessmentItem[];
+  remark?: string; // หมายเหตุรวมของผู้ถูกประเมิน
   status: AssessmentStatus;
   selfTotal: number | null; // ผลรวมถ่วงน้ำหนักจากคะแนนตนเอง
   finalScore: number | null; // ผลรวมถ่วงน้ำหนักจากคะแนนหัวหน้า

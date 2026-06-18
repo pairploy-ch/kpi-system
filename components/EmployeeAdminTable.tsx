@@ -83,7 +83,7 @@ export default function EmployeeAdminTable({
               <Th>EmpID</Th>
               <Th>บทบาท</Th>
               <Th>แผนก</Th>
-              {showManager && <Th>หัวหน้า</Th>}
+              {showManager && <Th>ผู้บังคับบัญชา</Th>}
             </>
           }
           rows={filtered.map((u) => (

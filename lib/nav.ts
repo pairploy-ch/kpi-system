@@ -40,8 +40,8 @@ export interface NavSection {
 const personal: NavSection = {
   title: "ส่วนบุคคล",
   items: [
-    { href: "/me", label: "Dashboard ของฉัน" },
-    { href: "/me/kpi", label: "KPI ของฉัน" },
+    { href: "/me", label: "Dashboard ของตนเอง" },
+    { href: "/me/kpi", label: "KPI ของตนเอง" },
   ],
 };
 

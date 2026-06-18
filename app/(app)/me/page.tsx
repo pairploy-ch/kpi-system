@@ -9,7 +9,6 @@ import {
   Td,
   Tr,
   Score,
-  StatusTag,
   Empty,
   LinkButton,
 } from "@/components/ui";
@@ -40,6 +39,12 @@ export default async function MyDashboard({
   if (!cycle) return <Empty>ยังไม่มีรอบประเมิน</Empty>;
 
   const a = assessmentOf(me.id, cycle.id);
+  const linkLabel =
+    me.role === "employee"
+      ? "KPI แผนก"
+      : me.role === "dept_manager"
+        ? "KPI ฝ่าย"
+        : "KPI องค์กร";
 
   return (
     <div>
@@ -48,22 +53,20 @@ export default async function MyDashboard({
           <CycleSelect cycles={cycleList.map((c) => ({ id: c.id, name: c.name }))} value={cycle.id} />
         }
       >
-        Dashboard ของฉัน
+        Dashboard ของตนเอง
       </PageTitle>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Stat label="สถานะ" value={<span className="text-base"><StatusTag status={a?.status ?? "draft"} /></span>} />
-        <Stat label="คะแนนประเมินตนเอง" value={<Score value={a?.selfTotal ?? null} />} />
-        <Stat label="คะแนนสุดท้าย" value={<Score value={a?.finalScore ?? null} />} />
-        <Stat label="หัวหน้าผู้ประเมิน" value={<span className="text-base">{userName(me.managerId)}</span>} />
+      <div className="mb-6 grid grid-cols-2 gap-4">
+        <Stat label="คะแนน" value={<Score value={a?.finalScore ?? null} />} />
+        <Stat label="ผู้บังคับบัญชาผู้ประเมิน" value={<span className="text-base">{userName(me.managerId)}</span>} />
       </div>
 
-      <Section title="รายการ KPI ของฉัน">
+      <Section title="รายการ KPI ของตนเอง">
         {!a || a.items.length === 0 ? (
           <Empty>
             <div className="space-y-3">
               <p>ยังไม่ได้ทำการประเมินตนเองในรอบนี้</p>
-              <LinkButton href="/me/kpi">ไปทำ KPI ของฉัน</LinkButton>
+              <LinkButton href="/me/kpi">ไปทำ KPI ของตนเอง</LinkButton>
             </div>
           </Empty>
         ) : (
@@ -71,11 +74,10 @@ export default async function MyDashboard({
             head={
               <>
                 <Th>หัวข้อ KPI</Th>
-                <Th>เชื่อมกับ</Th>
+                <Th>{linkLabel}</Th>
+                <Th>ตัวชี้วัด</Th>
                 <Th>Weight</Th>
-                <Th>Time (กรอบเวลา)</Th>
-                <Th className="text-right">ตนเอง</Th>
-                <Th className="text-right">หัวหน้า</Th>
+                <Th className="text-right">ผู้บังคับบัญชา</Th>
               </>
             }
             rows={a.items.map((it) => (
@@ -87,9 +89,8 @@ export default async function MyDashboard({
                   )}
                 </Td>
                 <Td className="text-neutral-500">{getKpi(it.linkedKpiId)?.title ?? "—"}</Td>
-                <Td>{it.weight}%</Td>
                 <Td className="text-neutral-500">{it.target || "—"}</Td>
-                <Td className="text-right tabular-nums">{it.selfScore}</Td>
+                <Td>{it.weight}%</Td>
                 <Td className="text-right">
                   <Score value={it.evalScore} />
                   {it.evalComment && (
@@ -101,6 +102,14 @@ export default async function MyDashboard({
           />
         )}
       </Section>
+
+      {a?.remark && (
+        <Section title="Remark">
+          <div className="rounded-xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-neutral-700">
+            {a.remark}
+          </div>
+        </Section>
+      )}
     </div>
   );
 }

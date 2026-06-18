@@ -36,18 +36,21 @@ const emptyDraft = (): Item => ({
 export default function SelfAssessmentEditor({
   cycleId,
   initial,
+  initialRemark,
   linkable,
   linkLabel,
   locked,
 }: {
   cycleId: string;
   initial: Item[];
+  initialRemark: string;
   linkable: KpiOpt[];
   linkLabel: string;
   locked: boolean;
 }) {
   const [items, setItems] = useState<Item[]>(initial);
   const [draft, setDraft] = useState<Item>(emptyDraft());
+  const [remark, setRemark] = useState(initialRemark);
 
   const kpiTitle = (id: string | null) =>
     id ? linkable.find((k) => k.id === id)?.title ?? "—" : "—";
@@ -66,9 +69,14 @@ export default function SelfAssessmentEditor({
     return (
       <div className="space-y-3">
         <div className="rounded-xl border border-[var(--border)] bg-neutral-50 px-5 py-4 text-sm text-neutral-600">
-          การประเมินรอบนี้ถูกประเมินโดยหัวหน้าแล้ว — ไม่สามารถแก้ไขได้
+          การประเมินรอบนี้ถูกประเมินโดยผู้บังคับบัญชาแล้ว — ไม่สามารถแก้ไขได้
         </div>
-        <ItemList items={items} kpiTitle={kpiTitle} />
+        <ItemList items={items} kpiTitle={kpiTitle} linkLabel={linkLabel} />
+        {remark && (
+          <div className="rounded-xl border border-[var(--border)] bg-white px-5 py-4 text-sm text-neutral-600">
+            <span className="font-semibold text-neutral-900">Remark:</span> {remark}
+          </div>
+        )}
       </div>
     );
   }
@@ -80,16 +88,7 @@ export default function SelfAssessmentEditor({
         <p className="mb-3 text-sm font-semibold">เพิ่ม KPI</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">หัวข้อ KPI</span>
-            <input
-              className={inputCls}
-              value={draft.title}
-              onChange={(e) => set({ title: e.target.value })}
-              placeholder="เช่น สรรหาพนักงานครบตามอัตรากำลัง"
-            />
-          </label>
-          <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">เชื่อมกับ {linkLabel}</span>
+            <span className="mb-1 block text-xs font-medium text-neutral-600">{linkLabel}</span>
             <select
               className={inputCls}
               value={draft.linkedKpiId ?? ""}
@@ -101,8 +100,26 @@ export default function SelfAssessmentEditor({
               ))}
             </select>
           </label>
+          <label className="block sm:col-span-2">
+            <span className="mb-1 block text-xs font-medium text-neutral-600">1. หัวข้อ KPI</span>
+            <input
+              className={inputCls}
+              value={draft.title}
+              onChange={(e) => set({ title: e.target.value })}
+              placeholder="เช่น สรรหาพนักงานครบตามอัตรากำลัง"
+            />
+          </label>
+          <label className="block sm:col-span-2">
+            <span className="mb-1 block text-xs font-medium text-neutral-600">2. ตัวชี้วัด</span>
+            <input
+              className={inputCls}
+              value={draft.target}
+              onChange={(e) => set({ target: e.target.value })}
+              placeholder="เช่น จำนวนพนักงานที่สรรหาได้ / อัตราคงอยู่"
+            />
+          </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">น้ำหนัก (Weight %)</span>
+            <span className="mb-1 block text-xs font-medium text-neutral-600">3. น้ำหนัก (Weight %)</span>
             <input
               type="number" min={0} max={100} className={inputCls}
               value={draft.weight}
@@ -110,16 +127,7 @@ export default function SelfAssessmentEditor({
             />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">กรอบเวลา / เป้าหมาย (Time)</span>
-            <input
-              className={inputCls}
-              value={draft.target}
-              onChange={(e) => set({ target: e.target.value })}
-              placeholder="เช่น ภายใน Q2"
-            />
-          </label>
-          <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">คะแนนประเมินตนเอง (0–100)</span>
+            <span className="mb-1 block text-xs font-medium text-neutral-600">4. คะแนนประเมินตนเอง (0–100)</span>
             <input
               type="number" min={0} max={100} className={inputCls}
               value={draft.selfScore}
@@ -127,13 +135,13 @@ export default function SelfAssessmentEditor({
             />
           </label>
           <label className="block sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-neutral-600">Note:</span>
+            <span className="mb-1 block text-xs font-medium text-neutral-600">5. Note:</span>
             <textarea
               className={inputCls}
               rows={2}
               value={draft.selfComment}
               onChange={(e) => set({ selfComment: e.target.value })}
-              placeholder="อธิบายผลงาน/บริบทเพิ่มเติมให้หัวหน้าทราบ"
+              placeholder="อธิบายผลงาน/บริบทเพิ่มเติมให้ผู้บังคับบัญชาทราบ"
             />
           </label>
         </div>
@@ -152,18 +160,33 @@ export default function SelfAssessmentEditor({
       {/* รายการ KPI ที่เพิ่มแล้ว */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-semibold">รายการ KPI ของฉัน ({items.length})</p>
+          <p className="text-sm font-semibold">รายการ KPI ของตนเอง ({items.length})</p>
           <span className={totalWeight === 100 ? "text-sm text-neutral-500" : "text-sm font-medium text-neutral-900"}>
             น้ำหนักรวม {totalWeight}% {totalWeight !== 100 && "(ควรรวมได้ 100%)"}
           </span>
         </div>
-        <ItemList items={items} kpiTitle={kpiTitle} onRemove={remove} />
+        <ItemList items={items} kpiTitle={kpiTitle} linkLabel={linkLabel} onRemove={remove} />
+      </div>
+
+      {/* Remark รวม */}
+      <div>
+        <label className="block">
+          <span className="mb-1 block text-sm font-semibold">Remark</span>
+          <textarea
+            className={inputCls}
+            rows={2}
+            value={remark}
+            onChange={(e) => setRemark(e.target.value)}
+            placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"
+          />
+        </label>
       </div>
 
       {/* บันทึก/ส่ง */}
       <form action={saveSelfAssessmentAction} className="flex gap-2 border-t border-[var(--border)] pt-4">
         <input type="hidden" name="cycle_id" value={cycleId} />
         <input type="hidden" name="items" value={JSON.stringify(items)} />
+        <input type="hidden" name="remark" value={remark} />
         <button
           type="submit" name="intent" value="save"
           className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
@@ -175,7 +198,7 @@ export default function SelfAssessmentEditor({
           disabled={items.length === 0}
           className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-40"
         >
-          ส่งให้หัวหน้าประเมิน
+          ส่งให้ผู้บังคับบัญชาประเมิน
         </button>
       </form>
     </div>
@@ -185,10 +208,12 @@ export default function SelfAssessmentEditor({
 function ItemList({
   items,
   kpiTitle,
+  linkLabel,
   onRemove,
 }: {
   items: Item[];
   kpiTitle: (id: string | null) => string;
+  linkLabel: string;
   onRemove?: (id: string) => void;
 }) {
   if (items.length === 0) {
@@ -209,7 +234,7 @@ function ItemList({
           <div className="min-w-0 flex-1">
             <p className="font-medium">{it.title}</p>
             <p className="mt-0.5 text-xs text-neutral-500">
-              เชื่อม: {kpiTitle(it.linkedKpiId)} · น้ำหนัก {it.weight}% · เป้าหมาย {it.target || "—"}
+              {linkLabel}: {kpiTitle(it.linkedKpiId)} · น้ำหนัก {it.weight}% · ตัวชี้วัด {it.target || "—"}
             </p>
             {it.selfComment && (
               <p className="mt-1 text-xs text-neutral-600">Note: {it.selfComment}</p>

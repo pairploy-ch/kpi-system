@@ -327,6 +327,7 @@ export async function saveSelfAssessmentAction(formData: FormData) {
   const cycleId = s(formData, "cycle_id");
   const submit = s(formData, "intent") === "submit";
   const items = parseItems(s(formData, "items"));
+  const remark = s(formData, "remark").trim();
   if (!cycleId) return;
   if (submit && items.length === 0) {
     await setFlash("เพิ่ม KPI อย่างน้อย 1 ข้อก่อนส่ง", "error");
@@ -344,6 +345,7 @@ export async function saveSelfAssessmentAction(formData: FormData) {
         userId: me.id,
         evaluatorId: me.managerId,
         items,
+        remark,
         status: submit ? "submitted" : "draft",
         selfTotal,
         finalScore: null,
@@ -362,6 +364,7 @@ export async function saveSelfAssessmentAction(formData: FormData) {
       });
       a.evaluatorId = me.managerId;
       a.selfTotal = selfTotal;
+      a.remark = remark;
       a.updatedAt = nowISO();
       if (submit) {
         a.status = "submitted";
@@ -369,7 +372,7 @@ export async function saveSelfAssessmentAction(formData: FormData) {
       }
     }
   });
-  await setFlash(submit ? "ส่งให้หัวหน้าประเมินแล้ว" : "บันทึกร่างแล้ว");
+  await setFlash(submit ? "ส่งให้ผู้บังคับบัญชาประเมินแล้ว" : "บันทึกร่างแล้ว");
   revalidatePath("/me/kpi");
   revalidatePath("/me");
 }

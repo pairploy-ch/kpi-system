@@ -15,15 +15,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const division = getDivision(me.divisionId);
   const department = getDepartment(me.departmentId);
 
-  const crumbs = [
-    company?.name,
-    department?.name ?? division?.name,
-    me.name,
-    me.empId,
-    me.position,
-  ].filter(Boolean);
+  // ด้านบนทุกหน้า: บริษัท / ฝ่าย
+  const headerSub = [company?.name, division?.name].filter(Boolean).join("  /  ");
 
-  const footerSub = [department?.name ?? division?.name, me.empId, me.position]
+  // มุมซ้ายล่าง: EMP ID, ตำแหน่ง, แผนก (ชื่อแสดงแยกด้านบน)
+  const footerSub = [me.empId, me.position, department?.name ?? division?.name]
     .filter(Boolean)
     .join(" · ");
 
@@ -38,9 +34,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="border-b border-[var(--border)] px-8 py-6">
-          <h1 className="text-2xl font-bold tracking-tight">สวัสดี, {me.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">สวัสดี คุณ {me.name}</h1>
           <p className="mt-1 text-sm text-neutral-500">
-            {crumbs.length ? crumbs.join("  ·  ") : roleLabel(me.role)}
+            {headerSub || roleLabel(me.role)}
           </p>
         </header>
 

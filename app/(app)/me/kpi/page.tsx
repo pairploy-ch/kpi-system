@@ -55,13 +55,13 @@ export default async function MyKpiPage({
           <CycleSelect cycles={cycleList.map((c) => ({ id: c.id, name: c.name }))} value={cycle.id} />
         }
       >
-        KPI ของฉัน
+        KPI ของตนเอง
       </PageTitle>
 
       <div className="mb-5 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
         <StatusTag status={a?.status ?? "draft"} />
         <span>
-          หัวหน้าผู้ประเมิน: <span className="font-medium text-neutral-900">{userName(me.managerId)}</span>
+          ผู้บังคับบัญชาผู้ประเมิน: <span className="font-medium text-neutral-900">{userName(me.managerId)}</span>
         </span>
         {a?.status === "evaluated" && a.finalScore !== null && (
           <span>
@@ -74,6 +74,7 @@ export default async function MyKpiPage({
         <SelfAssessmentEditor
           cycleId={cycle.id}
           initial={initial}
+          initialRemark={a?.remark ?? ""}
           linkable={linkable}
           linkLabel={linkLabel}
           locked={a?.status === "evaluated"}

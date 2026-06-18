@@ -24,17 +24,22 @@ export default async function EvaluateDetail({
   if (!owner || owner.managerId !== me.id) redirect("/evaluate");
 
   const cycle = getCycle(a.cycleId);
-  const items = a.items.map((it) => ({
+  const levelLabel = { org: "KPI องค์กร", division: "KPI ฝ่าย", department: "KPI แผนก" } as const;
+  const items = a.items.map((it) => {
+    const linked = getKpi(it.linkedKpiId);
+    return {
     id: it.id,
     title: it.title,
     weight: it.weight,
     target: it.target,
-    linkedTitle: getKpi(it.linkedKpiId)?.title ?? "—",
+    linkedLabel: linked ? levelLabel[linked.level] : "เชื่อมกับ",
+    linkedTitle: linked?.title ?? "—",
     selfScore: it.selfScore,
     selfComment: it.selfComment,
     evalScore: it.evalScore,
     evalComment: it.evalComment,
-  }));
+    };
+  });
 
   return (
     <div className="max-w-3xl">

@@ -19,7 +19,7 @@ export default async function ManagePage() {
   const hrTiles: Tile[] = [
     { href: "/manage/divisions", title: "ฝ่าย", desc: "เพิ่ม/จัดการฝ่ายในองค์กร" },
     { href: "/manage/departments", title: "แผนก", desc: "เพิ่มแผนกในแต่ละฝ่าย" },
-    { href: "/manage/employees", title: "พนักงาน", desc: "เพิ่มพนักงาน กำหนดหัวหน้าผู้ประเมิน" },
+    { href: "/manage/employees", title: "พนักงาน", desc: "เพิ่มพนักงาน กำหนดผู้บังคับบัญชาผู้ประเมิน" },
     { href: "/manage/cycles", title: "รอบประเมิน", desc: "สร้างรอบประเมิน KPI ต่อปี" },
     { href: "/manage/org-kpi", title: "KPI องค์กร", desc: "กำหนด KPI หลักขององค์กร" },
   ];
