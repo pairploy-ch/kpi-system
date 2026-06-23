@@ -333,6 +333,13 @@ export async function saveSelfAssessmentAction(formData: FormData) {
     await setFlash("เพิ่ม KPI อย่างน้อย 1 ข้อก่อนส่ง", "error");
     return;
   }
+  if (submit) {
+    const totalWeight = items.reduce((sum, i) => sum + (Number(i.weight) || 0), 0);
+    if (totalWeight !== 100) {
+      await setFlash(`น้ำหนักรวมต้องเท่ากับ 100% ก่อนส่ง (ตอนนี้ ${totalWeight}%)`, "error");
+      return;
+    }
+  }
 
   mutate((db) => {
     let a = db.assessments.find((x) => x.userId === me.id && x.cycleId === cycleId);

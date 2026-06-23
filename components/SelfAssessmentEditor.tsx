@@ -115,7 +115,7 @@ export default function SelfAssessmentEditor({
               className={inputCls}
               value={draft.target}
               onChange={(e) => set({ target: e.target.value })}
-              placeholder="เช่น จำนวนพนักงานที่สรรหาได้ / อัตราคงอยู่"
+              placeholder="กำหนดเอง เช่น 100,000 บาท · 100% · ลดลง 30% จากปีที่แล้ว"
             />
           </label>
           <label className="block">
@@ -183,23 +183,30 @@ export default function SelfAssessmentEditor({
       </div>
 
       {/* บันทึก/ส่ง */}
-      <form action={saveSelfAssessmentAction} className="flex gap-2 border-t border-[var(--border)] pt-4">
+      <form action={saveSelfAssessmentAction} className="border-t border-[var(--border)] pt-4">
         <input type="hidden" name="cycle_id" value={cycleId} />
         <input type="hidden" name="items" value={JSON.stringify(items)} />
         <input type="hidden" name="remark" value={remark} />
-        <button
-          type="submit" name="intent" value="save"
-          className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
-        >
-          บันทึกร่าง
-        </button>
-        <button
-          type="submit" name="intent" value="submit"
-          disabled={items.length === 0}
-          className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-40"
-        >
-          ส่งให้ผู้บังคับบัญชาประเมิน
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit" name="intent" value="save"
+            className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
+          >
+            บันทึกร่าง
+          </button>
+          <button
+            type="submit" name="intent" value="submit"
+            disabled={items.length === 0 || totalWeight !== 100}
+            className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-40"
+          >
+            ส่งให้ผู้บังคับบัญชาประเมิน
+          </button>
+        </div>
+        {items.length > 0 && totalWeight !== 100 && (
+          <p className="mt-2 text-xs text-amber-600">
+            ต้องใส่น้ำหนักรวมให้ครบ 100% ก่อนจึงจะส่งได้ (ตอนนี้ {totalWeight}%)
+          </p>
+        )}
       </form>
     </div>
   );

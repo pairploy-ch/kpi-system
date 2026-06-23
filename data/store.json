@@ -1135,13 +1135,13 @@
         }
       ],
       "remark": "ฉบับร่าง — ยังไม่ได้ส่ง KPI ให้ผู้บังคับบัญชา",
-      "status": "draft",
+      "status": "submitted",
       "selfTotal": 83,
       "finalScore": null,
-      "submittedAt": null,
+      "submittedAt": "2026-06-23T07:22:09.474Z",
       "evaluatedAt": null,
       "createdAt": "2026-01-10T00:00:00.000Z",
-      "updatedAt": "2026-01-10T00:00:00.000Z"
+      "updatedAt": "2026-06-23T07:22:09.474Z"
     },
     {
       "id": "as-u-c1-d1p1-e2",
