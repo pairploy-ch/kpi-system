@@ -145,6 +145,49 @@ export async function addDepartmentAction(formData: FormData) {
   revalidatePath("/manage/departments");
 }
 
+export async function deleteDivisionAction(formData: FormData) {
+  const me = await requireUser();
+  if (me.role !== "hr" || !me.companyId) return;
+  const id = s(formData, "id");
+  if (!id) return;
+
+  const result = mutate((db): { ok: boolean; reason?: string } => {
+    const div = db.divisions.find((d) => d.id === id && d.companyId === me.companyId);
+    if (!div) return { ok: false, reason: "ไม่พบฝ่าย" };
+    if (db.departments.some((d) => d.divisionId === id)) {
+      return { ok: false, reason: "ลบไม่ได้ ยังมีแผนกอยู่ในฝ่ายนี้" };
+    }
+    if (db.users.some((u) => u.divisionId === id)) {
+      return { ok: false, reason: "ลบไม่ได้ ยังมีพนักงานอยู่ในฝ่ายนี้" };
+    }
+    db.divisions = db.divisions.filter((d) => d.id !== id);
+    return { ok: true };
+  });
+
+  await setFlash(result.ok ? "ลบฝ่ายแล้ว" : result.reason ?? "ลบไม่ได้", result.ok ? "success" : "error");
+  revalidatePath("/manage/divisions");
+}
+
+export async function deleteDepartmentAction(formData: FormData) {
+  const me = await requireUser();
+  if (me.role !== "hr" || !me.companyId) return;
+  const id = s(formData, "id");
+  if (!id) return;
+
+  const result = mutate((db): { ok: boolean; reason?: string } => {
+    const dep = db.departments.find((d) => d.id === id && d.companyId === me.companyId);
+    if (!dep) return { ok: false, reason: "ไม่พบแผนก" };
+    if (db.users.some((u) => u.departmentId === id)) {
+      return { ok: false, reason: "ลบไม่ได้ ยังมีพนักงานอยู่ในแผนกนี้" };
+    }
+    db.departments = db.departments.filter((d) => d.id !== id);
+    return { ok: true };
+  });
+
+  await setFlash(result.ok ? "ลบแผนกแล้ว" : result.reason ?? "ลบไม่ได้", result.ok ? "success" : "error");
+  revalidatePath("/manage/departments");
+}
+
 export async function addEmployeeAction(formData: FormData) {
   const me = await requireUser();
   if (!me.companyId) return;

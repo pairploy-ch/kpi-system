@@ -25,8 +25,8 @@ export default async function ManagePage() {
   ];
   const evalTile: Tile = {
     href: "/evaluate",
-    title: "ประเมินลูกน้อง",
-    desc: "ตรวจและให้คะแนนลูกน้องตามรอบ",
+    title: "ประเมินผู้ใต้บังคับบัญชา",
+    desc: "ตรวจและให้คะแนนผู้ใต้บังคับบัญชาตามรอบ",
   };
   const unitTiles: Tile[] = [
     {

@@ -64,14 +64,16 @@ export default async function DashboardPage({
   if (me.role === "dept_manager" && me.departmentId) {
     const dept = getDepartment(me.departmentId);
     const members = usersInDepartment(me.departmentId);
-    const avg = departmentAvg(me.departmentId, cycle.id);
+    const evaluatedCount = members.filter(
+      (m) => finalScoreOf(m.id, cycle.id) !== null
+    ).length;
     return (
       <div>
         <PageTitle right={selector}>Dashboard แผนก</PageTitle>
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
           <Stat label="แผนก" value={<span className="text-base">{dept?.name}</span>} />
           <Stat label="จำนวนพนักงาน" value={members.length} />
-          <Stat label="คะแนนเฉลี่ยแผนก" value={<Score value={avg} />} />
+          <Stat label="จำนวนพนักงานที่ได้รับการประเมินแล้ว" value={evaluatedCount} />
         </div>
         <Section title="พนักงานในแผนก">
           <MembersTable userIds={members.map((m) => m.id)} cycleId={cycle.id} />

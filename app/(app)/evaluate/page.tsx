@@ -36,11 +36,11 @@ export default async function EvaluatePage({
           <CycleSelect cycles={cycleList.map((c) => ({ id: c.id, name: c.name }))} value={cycle.id} />
         }
       >
-        ประเมินลูกน้อง
+        ประเมินผู้ใต้บังคับบัญชา
       </PageTitle>
 
       {subs.length === 0 ? (
-        <Empty>ไม่มีลูกน้องที่ต้องประเมิน</Empty>
+        <Empty>ไม่มีผู้ใต้บังคับบัญชาที่ต้องประเมิน</Empty>
       ) : (
         <PaginatedTable
           head={

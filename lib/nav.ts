@@ -71,7 +71,7 @@ export function buildNav(user: User): NavSection[] {
           items: [
             { href: "/dashboard", label: "Dashboard องค์กร" },
             { href: "/manage", label: "การจัดการ" },
-            { href: "/evaluate", label: "ประเมินลูกน้อง" },
+            { href: "/evaluate", label: "ประเมินผู้ใต้บังคับบัญชา" },
           ],
         },
       ];

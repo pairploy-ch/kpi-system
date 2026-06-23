@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { addDivisionAction } from "@/lib/actions";
+import { addDivisionAction, deleteDivisionAction } from "@/lib/actions";
 import { PageTitle, Section, Card, Field, Input, Button, Th, Td, Tr, Empty } from "@/components/ui";
 import PaginatedTable from "@/components/PaginatedTable";
 import { divisionsOf, departmentsInDivision } from "@/lib/queries";
@@ -36,11 +36,22 @@ export default async function DivisionsPage() {
           <Empty>ยังไม่มีฝ่าย</Empty>
         ) : (
           <PaginatedTable
-            head={<><Th>ฝ่าย</Th><Th>จำนวนแผนก</Th></>}
+            head={<><Th>ฝ่าย</Th><Th>จำนวนแผนก</Th><Th></Th></>}
             rows={divisions.map((d) => (
               <Tr key={d.id}>
                 <Td className="font-medium">{d.name}</Td>
                 <Td>{departmentsInDivision(d.id).length}</Td>
+                <Td className="text-right">
+                  <form action={deleteDivisionAction}>
+                    <input type="hidden" name="id" value={d.id} />
+                    <Button
+                      variant="outline"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      ลบ
+                    </Button>
+                  </form>
+                </Td>
               </Tr>
             ))}
           />
