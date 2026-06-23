@@ -70,7 +70,7 @@ export default async function UnitKpiPage() {
           <Empty>ยังไม่มี {title}</Empty>
         ) : (
           <PaginatedTable
-            head={<><Th>หัวข้อ KPI</Th><Th>เชื่อมกับ KPI ฝ่าย</Th></>}
+            head={<><Th>หัวข้อ KPI</Th><Th>เชื่อมกับ KPI (ด้านบน)</Th></>}
             rows={list.map((k) => (
               <Tr key={k.id}>
                 <Td className="font-medium">{k.title}</Td>
