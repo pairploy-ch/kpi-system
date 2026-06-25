@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function OrgKpiPage() {
   const me = await getCurrentUser();
   if (!me) redirect("/login");
-  if (!["hr", "ceo"].includes(me.role) || !me.companyId) redirect("/");
+  if (me.role !== "hr" || !me.companyId) redirect("/");
 
   const kpis = kpisOf(me.companyId, "org");
 

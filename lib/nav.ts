@@ -65,12 +65,12 @@ export function buildNav(user: User): NavSection[] {
       ];
     case "ceo":
       // CEO เป็นระดับสูงสุด — ไม่มีหัวหน้าประเมิน จึงไม่มีส่วนบุคคล
+      // และไม่มีหน้าที่จัดการ (KPI องค์กรเป็นของ HR)
       return [
         {
           title: "ส่วนองค์กร",
           items: [
             { href: "/dashboard", label: "Dashboard องค์กร" },
-            { href: "/manage", label: "การจัดการ" },
             { href: "/evaluate", label: "ประเมินผู้ใต้บังคับบัญชา" },
           ],
         },

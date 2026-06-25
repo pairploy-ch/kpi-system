@@ -267,7 +267,7 @@ export async function addCycleAction(formData: FormData) {
 /* ---------------- KPI definitions ---------------- */
 export async function addOrgKpiAction(formData: FormData) {
   const me = await requireUser();
-  if (!me.companyId) return;
+  if (me.role !== "hr" || !me.companyId) return;
   const title = s(formData, "title");
   if (!title) {
     await setFlash("กรอกหัวข้อ KPI", "error");
